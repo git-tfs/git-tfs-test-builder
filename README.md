@@ -15,5 +15,5 @@ You'll need to have ruby installed.
 ```
 git clone https://github.com/git-tfs/git-tfs-test-builder
 cd git-tfs-test-builder
-ruby script/bootstrap.rb
+ruby bootstrap.rb
 ```
