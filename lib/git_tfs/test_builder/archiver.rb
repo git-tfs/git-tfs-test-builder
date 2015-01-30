@@ -1,3 +1,5 @@
+require "fileutils"
+
 require "git_tfs/test_builder/changeset"
 
 module GitTfs
@@ -9,14 +11,53 @@ module GitTfs
 
       def each_changeset
         Dir[File.join(changeset_dir, "*.xml")].each do |changeset_path|
-          yield Changeset.from_xml(File.read(changeset_path))
+          yield Changeset.from_xml_string(File.read(changeset_path))
+        end
+      end
+
+      def archive_changeset(changeset)
+        changeset_path = File.join(changeset_dir, "#{changeset.number}.xml")
+        $stderr.puts "Writing to #{changeset_path}:\n#{changeset.raw}" if ENV["DEBUG"] == "y"
+        File.open(changeset_path, "w") do |f|
+          f.write changeset.raw
+        end
+      end
+
+      def has_change_item?(change)
+        File.exist?(change_path(change))
+      end
+
+      def archive_change(change, content)
+        if content
+          File.open(change_path(change), "wb") do |f|
+            f.write content
+          end
         end
       end
 
       private
 
+      def change_path(change)
+        File.join(change_dir, archivable_hash(change.item_hash))
+      end
+
+      # Convert something like "NurmtqRxc3Wk/xYod0TNHQ==" to something like "36eae6b6a4717375a4ff16287744cd1d"
+      def archivable_hash(base64_hash)
+        base64_hash.unpack("m").first.unpack("H*").first
+      end
+
       def changeset_dir
-        File.join(@dir, "changesets")
+        @changes_dir ||= ensure_subdir("changesets")
+      end
+
+      def change_dir
+        @change_dir ||= ensure_subdir("content")
+      end
+
+      def ensure_subdir(name)
+        File.join(@dir, name).tap do |path|
+          FileUtils.mkdir_p path
+        end
       end
     end
   end

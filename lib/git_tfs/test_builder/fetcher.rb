@@ -16,13 +16,20 @@ module GitTfs
         max_changeset = 0
         archiver.each_changeset do |changeset|
           max_changeset = changeset.number if changeset.number > max_changeset
-          archiver.each_unfetched_change(changeset) do |change|
-            archiver.archive_change(change)
-          end
+          archive_files changeset
         end
         start_changeset = max_changeset + 1
         tfs_reader.each_changeset(:start => start_changeset) do |changeset|
-          archiver.archive_changeset(changeset)
+          archiver.archive_changeset changeset
+          archive_files changeset
+        end
+      end
+
+      def archive_files(changeset)
+        changeset.each_change do |change|
+          if change.downloadable? && !archiver.has_change_item?(change)
+            archiver.archive_change change, tfs_reader.download_item(change)
+          end
         end
       end
 

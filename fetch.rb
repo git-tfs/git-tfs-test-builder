@@ -1,11 +1,7 @@
 $: << File.expand_path("lib", File.dirname(__FILE__))
 
-begin
-  require "git_tfs/test_builder/fetcher"
-rescue LoadError
-  require "bundler/setup"
-  require "git_tfs/test_builder/fetcher"
-end
+require "bundler/setup"
+require "git_tfs/test_builder/fetcher"
 
 require "optparse"
 
