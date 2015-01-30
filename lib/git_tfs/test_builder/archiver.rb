@@ -38,12 +38,7 @@ module GitTfs
       private
 
       def change_path(change)
-        File.join(change_dir, archivable_hash(change.item_hash))
-      end
-
-      # Convert something like "NurmtqRxc3Wk/xYod0TNHQ==" to something like "36eae6b6a4717375a4ff16287744cd1d"
-      def archivable_hash(base64_hash)
-        base64_hash.unpack("m").first.unpack("H*").first
+        File.join(change_dir, change.item_hex_hash)
       end
 
       def changeset_dir

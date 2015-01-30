@@ -6,6 +6,7 @@ This script builds git-tfs integration test data from a real TFS repository.
 
 ```
 ruby fetch.rb -u YOU@DOMAIN -p PASSWORD -o DIR https://server/tfs/collection $/Project/Root
+ruby build.rb DIR
 ```
 
 ## Installation

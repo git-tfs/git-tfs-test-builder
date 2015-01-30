@@ -15,10 +15,22 @@ module GitTfs
         element["cset"].to_i
       end
 
-      def each_change
-        @xml.xpath("//Changes/Change").each do |e|
-          yield Change.new(e)
+      def comment
+        element.xpath("Comment").first.content
+      end
+
+      def date
+        element["date"]
+      end
+
+      def changes
+        @xml.xpath("//Changes/Change").map do |e|
+          Change.new(e)
         end
+      end
+
+      def each_change(&block)
+        changes.each(&block)
       end
 
       def raw
@@ -42,7 +54,7 @@ module GitTfs
       end
 
       def item_type
-        item_element && item_element["type"]
+        item_attr "type"
       end
 
       def change_types
@@ -50,11 +62,24 @@ module GitTfs
       end
 
       def item_hash
-        item_element && item_element["hash"]
+        item_attr "hash"
+      end
+
+      # Convert something like "NurmtqRxc3Wk/xYod0TNHQ==" to something like "36eae6b6a4717375a4ff16287744cd1d"
+      def item_hex_hash
+        item_hash && item_hash.unpack("m").first.unpack("H*").first
+      end
+
+      def item_path
+        item_attr "item"
+      end
+
+      def item_id
+        item_attr "itemid"
       end
 
       def download_query
-        item_element && item_element["durl"]
+        item_attr "durl"
       end
 
       private
@@ -65,6 +90,10 @@ module GitTfs
 
       def item_element
         @element.xpath("./Item").first
+      end
+
+      def item_attr(name)
+        item_element && item_element[name]
       end
     end
   end
