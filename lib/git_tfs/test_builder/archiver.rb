@@ -35,7 +35,17 @@ module GitTfs
         end
       end
 
+      def archive_raw(name, data)
+        File.open(raw_path(name), "wb") do |f|
+          f.write data
+        end
+      end
+
       private
+
+      def raw_path(name)
+        File.join(@dir, name)
+      end
 
       def change_path(change)
         File.join(change_dir, change.item_hex_hash)

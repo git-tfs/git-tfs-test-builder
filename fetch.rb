@@ -21,6 +21,10 @@ optparser = OptionParser.new do |opts|
     options[:outdir] = v
   end
 
+  opts.on("-r", "--root-branch RELATIVE/PATH") do |v|
+    options[:root_branch] = v
+  end
+
   opts.on("-h", "--help", "Show this text") do
     puts opts
     exit 0

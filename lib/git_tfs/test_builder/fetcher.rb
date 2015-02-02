@@ -10,6 +10,7 @@ module GitTfs
         @url = options.fetch(:url)
         @path = options.fetch(:path)
         @outdir = options.fetch(:outdir)
+        @root_branch = options.fetch(:root_branch) { nil }
       end
 
       def run
@@ -22,6 +23,9 @@ module GitTfs
         tfs_reader.each_changeset(:start => start_changeset) do |changeset|
           archiver.archive_changeset changeset
           archive_files changeset
+        end
+        if @root_branch
+          archiver.archive_raw "branchinfo.xml", tfs_reader.read_branch_info(@root_branch)
         end
       end
 

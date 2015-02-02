@@ -39,6 +39,13 @@ module GitTfs
         res.body
       end
 
+      def read_branch_info(root_branch)
+        res = soap_request :repository_v3, "QueryBranchObjects", :path => File.join(tfs_path, root_branch)
+        raise RequestError.new(res) unless res.response_code == 200
+        xml = Nokogiri::XML(res.body)
+        return xml.xpath("//*[local-name() = 'QueryBranchObjectsResult']").first.to_s
+      end
+
       private
 
       def soap_request(service_id, action, req_options = {})
@@ -81,6 +88,20 @@ module GitTfs
         },
         :download => {
           :path => "VersionControl/v1.0/item.ashx",
+        },
+        :repository_v3 => {
+          :path => "VersionControl/v3.0/repository.asmx",
+          :xmlns => "http://schemas.microsoft.com/TeamFoundation/2005/06/VersionControl/ClientServices/03",
+          :req_body => {
+            "QueryBranchObjects" => lambda do |req, options|
+              if path = options[:path]
+                req.item :it => path, :ctype => 4096-1 do
+                  req.Version "xsi:type" => "LatestVersionSpec"
+                end
+              end
+              req.recursion(options[:recursion_type] || "Full")
+            end,
+          },
         },
       }
 
